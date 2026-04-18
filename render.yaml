@@ -1,0 +1,30 @@
+# Render deployment configuration
+# Docs: https://render.com/docs/yaml-spec
+
+services:
+  - type: web
+    name: ai-gateway-api
+    runtime: node
+    region: oregon
+    plan: free          # change to "starter" or higher for production
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /api/trpc/system.health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false       # set in Render dashboard — MySQL connection string
+      - key: JWT_SECRET
+        generateValue: true   # Render auto-generates a secure random value
+      - key: APP_ID
+        value: ai-gateway
+      - key: ADMIN_EMAIL
+        sync: false       # email address that gets admin role on first login
+      - key: ALLOWED_ORIGINS
+        sync: false       # comma-separated list of allowed frontend origins, e.g. https://your-app.netlify.app
+      # Optional: provider API keys for the AI routing layer (Phase 9)
+      # - key: OPENAI_API_KEY
+      #   sync: false
+      # - key: ANTHROPIC_API_KEY
+      #   sync: false
